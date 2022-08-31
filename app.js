@@ -12,7 +12,7 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 const adminRoutes = require("./routes/admin");
-// const shopRoutes = require('./routes/shop');
+const shopRoutes = require("./routes/shop");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -28,9 +28,18 @@ app.use((req, res, next) => {
 });
 
 app.use("/admin", adminRoutes);
-// app.use(shopRoutes);
+app.use(shopRoutes);
 
 app.use(errorController.get404);
+
+process.once("SIGUSR2", function () {
+  process.kill(process.pid, "SIGUSR2");
+});
+
+process.on("SIGINT", function () {
+  // this is only called on ctrl+c, not restart
+  process.kill(process.pid, "SIGINT");
+});
 
 mongoConnect(() => {
   app.listen(process.env.PORT);
